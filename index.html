@@ -1,0 +1,136 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="js/sha256.min.js"></script>
+    <script type="text/javascript" src="js/sha512.min.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/normalize.min.css" />
+    <style>
+        body {
+		    margin: 0;
+		    padding: 50px;
+		}
+		div{
+		    margin-top: 10px;
+		}
+		input{
+		}
+		div#basic,div#cat{
+			//display: inline-block;
+		}
+		.label{
+		    min-width: 120px;
+		    display: inline-block;
+		}
+		.long{
+		    height: 33px;
+			width: 600px;
+		}
+		.short{
+		    height: 33px;
+			width: 200px;
+		}
+		.description{
+		    margin-top: unset;
+		    font-size: x-small;
+		    color: #999;
+		    margin-left: 120px;
+		    padding: 5px;
+			display: block;
+		}
+		.divideEqually{
+    		width: 600px;
+    		display: inline-block;
+		}
+		.redText{
+			color: #f00;
+		}
+		</style>
+    <title>Verification of Saviour Sword</title>
+</head>
+
+<body>
+    <form>
+        <div>
+            <span class="label">Server Seed</span>
+            <input id="serverSeed" class="long" type="text" value="16f60cc200ac7f0c71e96f4654f068738a91205e736f2b3062ef0c71af400000" />
+        </div>
+        <div>
+            <span class="label">Client Seed</span>
+            <input id="clientSeed" class="long" type="text" value="dfm62rMFMmBNHKEZAsS8MBs00000" />
+        </div>
+        <div>
+            <span class="label">Nonce</span>
+            <input id="nonce" class="short" type="text" value="75" />
+        </div>
+    </form>
+    <div id="basic">
+        <h1>Basic Spin</h1>
+        <div>
+            <span class="label">Round</span>
+            <input id="round" class="short" type="text" value="0" disabled="disabled" />
+        </div>
+        <div>
+            <span class="description">Sha256(Server_Seed:Client_Seed:Nonce:Round)</span>
+            <span class="label">Hash</span>
+            <input id="hash" class="long" type="text" disabled="disabled" />
+        </div>
+        <div class="placeholder">
+        </div>
+    </div>
+    <div id="cat">
+        <h1>Cat Respin</h1>
+        <h3>If cat symbol appears in the above result, cat respin will be triggered</h3>
+        <h3 class="redText" id="msg" style="display: none;">No cat symbol found</h3>
+        <div id="content" style="display: none;">
+            <div>
+                <span class="label">Round</span>
+                <input id="round" class="short" type="text" value="1" disabled="disabled" />
+            </div>
+            <div>
+                <span class="description">Sha256(Server_Seed:Client_Seed:Nonce:Round)</span>
+                <span class="label">Hash</span>
+                <input id="hash" class="long" type="text" disabled="disabled" />
+            </div>
+            <div class="placeholder">
+            </div>
+        </div>
+    </div>
+    <div id="lucky">
+        <h1>Lucky Spin</h1>
+        <h3>If three sword symbols appear in the above result, lucky spin will be triggered</h3>
+        <h3 class="redText" id="msg" style="display: none;">There are no three sword symbols</h3>
+        <div id="content" style="display: none;">
+            <div>
+                <span class="label">Round</span>
+                <input id="round" class="short" type="text" value="2" disabled="disabled" />
+            </div>
+            <div>
+                <span class="description">Sha256(Server_Seed:Client_Seed:Nonce:Round)</span>
+                <span class="label">Hash</span>
+                <input id="hash" class="long" type="text" disabled="disabled" />
+            </div>
+            <div class="placeholder">
+            </div>
+        </div>
+    </div>
+    <div id="bonus">
+        <h1>Bonus Respin</h1>
+        <h3>It will trigger if you get the bonus respin</h3>
+        <h3 class="redText" id="msg" style="display: none;">You don't get bonus respin</h3>
+        <div id="content" style="display: none;">
+            <div class="placeholder">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script>
+$('form').keyup(basicSpin).keyup();
+</script>

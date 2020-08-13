@@ -505,7 +505,7 @@ function bonusRespin(bonus) {
     var rightSide = 120;
     var bonusSpinResult = new Array();
     var bonusSpinImage = new Array();
-    for (var a = 0; a < bonus; a++) {
+    for (var a = 0; a < 1; a++) {//only run once
         bonusSpinResult[a] = new Array();
         bonusSpinImage[a] = new Array();
         var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);

@@ -73,6 +73,7 @@ function basicSpin() {
     drawWrapText(ctx, "Convert hexadecimal to decimal", 0, rightSide, lineHeight * 5);
     drawWrapText(ctx, "Calculate separately and add up", 0, rightSide, lineHeight * 6.5);
     drawWrapText(ctx, "Multiply the total by the weight", 0, rightSide, lineHeight * 11.5);
+    drawWrapText(ctx, "Round to integer", 0, rightSide, lineHeight * 14);
     var spacing = 10;
     var cellWidth = (canvasWidth - rightSide - spacing * 4) / 5;
     var len = 8;
@@ -116,13 +117,7 @@ function basicSpin() {
         ctx.stroke();*/
     }
     swordFound = sword >= 3;
-    var input = document.createElement('input');
-    $(input).attr("type", "button");
-    $(input).attr("value", "Show/Hide weight Table");
-    $(input).css("display", "block");
-    $(input).click(function() { $("div#basic div.placeholder").children().eq(2).toggle("fast") });
-    $("div#basic div.placeholder").append(input);
-    // basicSpinResult=[17835,15355,14355,15355,17835];
+    insertShowMoreButton("div#basic div.placeholder");
     canvasWidth = 900;
     canvasHeight = 1000;
     spacing = 30;
@@ -247,9 +242,11 @@ function catRespin() {
     drawWrapText(ctx, "Convert hexadecimal to decimal", 0, rightSide, lineHeight * 5);
     drawWrapText(ctx, "Calculate separately and add up", 0, rightSide, lineHeight * 6.5);
     drawWrapText(ctx, "Multiply the total by the weight", 0, rightSide, lineHeight * 11.5);
+    drawWrapText(ctx, "Round to integer", 0, rightSide, lineHeight * 13.5);
     var str = hash.substr(0, 8);
     var x = rightSide;
     var result = drawProcess(ctx, str, weight, x, 0, cellWidth, lineHeight);
+    drawWrapText(ctx, "=" + Math.floor(result), x, x + cellWidth, lineHeight * 13.5, "right");
     var spacing = 30;
     x = rightSide + cellWidth + spacing;
     var _cellWidth = (canvasWidth - x - spacing * 3) / 3;
@@ -317,12 +314,7 @@ function catRespin() {
     // ctx.moveTo(rightSide, 0);
     // ctx.lineTo(rightSide, canvasHeight);
     // ctx.stroke();
-    var input = document.createElement('input');
-    $(input).attr("type", "button");
-    $(input).attr("value", "Show/Hide weight Table");
-    $(input).css("display", "block");
-    $(input).click(function() { $("div#cat div.placeholder").children().eq(2).toggle("fast") });
-    $("div#cat div.placeholder").append(input);
+    insertShowMoreButton("div#cat div.placeholder");
 
     canvasWidth = 900;
     canvasHeight = 500;
@@ -384,7 +376,6 @@ function catRespin() {
         // ctx2.lineTo(x, canvasHeight);
         // ctx2.stroke();
     }
-    // luckySpin();
 }
 
 function luckySpin() {
@@ -440,28 +431,40 @@ function luckySpin() {
     $(img).data("result", result);
     img.onload = function() {
         ctx.drawImage(this, 350, 40);
-        var y = 105;
+        var y = 99;
         var x = 356;
         var _cellWidth = 112;
         var highlight = false;
+        var prize;
+        var type = "payout";
         for (var a = 0; a < weight.length; a++) {
-            var _y = y + 36 * a;
+            var _y = y + 35.5 * a;
             if (a > 3) {
-                x = 610;
-                _y = y + 36 * (a - 4);
+                x = 609;
+                _y = y + 35.5 * (a - 4);
+
             }
             if (!highlight && $(this).data("result") <= weight[a][0]) {
                 highlight = true;
                 ctx.fillStyle = "#ccc";
-                ctx.fillRect(x, _y - 23, _cellWidth * 2, 36);
-                bonusRespin(weight[a][1]);
-                // bonusRespin(3);
+                ctx.fillRect(x, _y - 22, _cellWidth * 2, 37);
+                prize = weight[a][1];
+                if (a > 3) {
+                    type = "respin";
+                }
             }
             ctx.fillStyle = "#000";
             drawWrapText(ctx, weight[a][0].toString(), x, x + _cellWidth, _y, "center");
             drawWrapText(ctx, weight[a][1].toString(), x + _cellWidth, x + _cellWidth * 2, _y, "center");
         }
-        drawWrapText(ctx, weight[weight.length - 1][0].toString(), x, x + _cellWidth, 285, "center");
+        drawWrapText(ctx, weight[weight.length - 1][0].toString(), x, x + _cellWidth, 280, "center");
+        if (type == "payout") {
+            drawWrapText(ctx, "You get " + prize + "x payout", 270, canvasWidth, lineHeight * 13.5, "center");
+        } else {
+            drawWrapText(ctx, "You get bonus respin and then " + prize + "x payout", 270, canvasWidth, lineHeight * 13.5, "center");
+        }
+        bonusRespin(prize);
+        console.log(type);
     }
     img.src = "images/luckySpin.png";
 }
@@ -496,145 +499,135 @@ function bonusRespin(bonus) {
     var clientSeed = $("input#clientSeed").val();
     var nonce = $("input#nonce").val();
     var round = 3;
-    var ctx = new Array();
-    var canvasWidth;
-    var canvasHeight;
+    var canvasWidth = 900;
+    var canvasHeight = 600;
     var descriptionFontSize = 12;
     var fontSize = 16;
     var lineHeight = 24;
     var rightSide = 120;
     var bonusSpinResult = new Array();
     var bonusSpinImage = new Array();
-    for (var a = 0; a < 1; a++) {//only run once
-        bonusSpinResult[a] = new Array();
-        bonusSpinImage[a] = new Array();
-        var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
+    var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
+    var ctx = createCanvas($("div#bonus div.placeholder"), canvasWidth, canvasHeight, "#f8f8f8", true);
+    ctx.font = fontSize + "px sans-serif";
+    ctx.fillStyle = "#000";
+    drawWrapText(ctx, "Bonus Respin", 10, canvasWidth, lineHeight * 1);
+    drawWrapText(ctx, "Round = " + (round++), 10, canvasWidth, lineHeight * 2);
+    drawWrapText(ctx, "Hash = " + hash, 10, canvasWidth, lineHeight * 3);
+    ctx.font = descriptionFontSize + "px sans-serif";
+    ctx.fillStyle = "#999";
+    drawWrapText(ctx, "Sha256(Server_Seed:Client_Seed:Nonce:Round)", 65, canvasWidth, lineHeight * 3.7);
+    drawWrapText(ctx, "Split the hash every 8 characters and take the first five string", 0, rightSide, lineHeight * 6);
+    drawWrapText(ctx, "Split each string every 2 characters", 0, rightSide, lineHeight * 8);
+    drawWrapText(ctx, "Convert hexadecimal to decimal", 0, rightSide, lineHeight * 10);
+    drawWrapText(ctx, "Calculate separately and add up", 0, rightSide, lineHeight * 11.5);
+    drawWrapText(ctx, "Multiply the total by the weight", 0, rightSide, lineHeight * 16.5);
+    drawWrapText(ctx, "Round to integer", 0, rightSide, lineHeight * 19);
+    var spacing = 10;
+    var cellWidth = (canvasWidth - rightSide - spacing * 4) / 5;
+    var len = 8;
+    var respin = false;
+    for (var col = 0, start = 0; col < 5; col++, start += len) {
+        var str = hash.substr(start, len);
+        var x = rightSide + (cellWidth * col) + (spacing * col);
+        var result = drawProcess(ctx, str, weight, x, lineHeight * 5, cellWidth, lineHeight);
+        bonusSpinResult[col] = Math.floor(result);
+        if (bonusSpinResult[col] > weight[10][0]) {
+            respin = true;
+        }
+        drawWrapText(ctx, "Reel_" + (col + 1) + "=" + bonusSpinResult[col], x, x + cellWidth, lineHeight * 19, "center");
+        var img = new Image();
+        $(img).data("ctx", ctx);
+        $(img).data("x", x);
+        $(img).data("cellWidth", cellWidth);
+        img.onload = function() {
+            $(this).data("ctx").drawImage(this, $(this).data("x") + ($(this).data("cellWidth") - this.width) / 2, lineHeight * 20);
+        };
+        for (var c = 0; c < weight.length; c++) {
+            if (bonusSpinResult[col] <= weight[c][0]) {
+                bonusSpinImage[col] = weight[c][1];
+                img.src = weight[c][1];
+                break;
+            }
+        }
+        /*ctx.strokeStyle = "#cccccc";
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        x = rightSide + (cellWidth * col) + (spacing * col);
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvasHeight);
+        if (col > 0) {
+            x = rightSide + (cellWidth * col) + (spacing * (col - 1));
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvasHeight);
+        }
+        ctx.stroke();*/
+    }
+    while (respin) {
+        respin = false;
         canvasWidth = 900;
-        canvasHeight = 600;
-        ctx[a] = createCanvas($("div#bonus div.placeholder"), canvasWidth, canvasHeight, "#f8f8f8", true);
-        ctx[a].font = fontSize + "px sans-serif";
-        ctx[a].fillStyle = "#000";
-        drawWrapText(ctx[a], "Bonus Respin #" + (a + 1), 10, canvasWidth, lineHeight * 1);
-        drawWrapText(ctx[a], "Round = " + (round++), 10, canvasWidth, lineHeight * 2);
-        drawWrapText(ctx[a], "Hash = " + hash, 10, canvasWidth, lineHeight * 3);
-        ctx[a].font = descriptionFontSize + "px sans-serif";
-        ctx[a].fillStyle = "#999";
-        drawWrapText(ctx[a], "Sha256(Server_Seed:Client_Seed:Nonce:Round)", 65, canvasWidth, lineHeight * 3.7);
-        drawWrapText(ctx[a], "Split the hash every 8 characters and take the first five string", 0, rightSide, lineHeight * 6);
-        drawWrapText(ctx[a], "Split each string every 2 characters", 0, rightSide, lineHeight * 8);
-        drawWrapText(ctx[a], "Convert hexadecimal to decimal", 0, rightSide, lineHeight * 10);
-        drawWrapText(ctx[a], "Calculate separately and add up", 0, rightSide, lineHeight * 11.5);
-        drawWrapText(ctx[a], "Multiply the total by the weight", 0, rightSide, lineHeight * 16.5);
-        var spacing = 10;
-        var cellWidth = (canvasWidth - rightSide - spacing * 4) / 5;
-        var len = 8;
-        var respin = false;
+        canvasHeight = 750;
+        ctx = createCanvas($("div#bonus div.placeholder"), canvasWidth, canvasHeight, "#f8f8f8", true);
+        ctx.font = fontSize + "px sans-serif";
+        ctx.fillStyle = "#000";
+        var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
+        drawWrapText(ctx, "Respin when the spade symbol, heart symbol, club symbol and square symbol appear in the reels", 10, canvasWidth, lineHeight * 1);
+        drawWrapText(ctx, "Round = " + (round++), 10, canvasWidth, lineHeight * 2);
+        drawWrapText(ctx, "Hash = " + hash, 10, canvasWidth, lineHeight * 3);
+        ctx.font = descriptionFontSize + "px sans-serif";
+        ctx.fillStyle = "#999";
+        drawWrapText(ctx, "Sha256(Server_Seed:Client_Seed:Nonce:Round)", 65, canvasWidth, lineHeight * 3.7);
+        drawWrapText(ctx, "Split the hash every 8 characters and take the first five string", 0, rightSide, lineHeight * 12);
+        drawWrapText(ctx, "Split each string every 2 characters", 0, rightSide, lineHeight * 14);
+        drawWrapText(ctx, "Convert hexadecimal to decimal", 0, rightSide, lineHeight * 16);
+        drawWrapText(ctx, "Calculate separately and add up", 0, rightSide, lineHeight * 17.5);
+        drawWrapText(ctx, "Multiply the total by the weight", 0, rightSide, lineHeight * 22.5);
+        drawWrapText(ctx, "Round to integer", 0, rightSide, lineHeight * 25);
         for (var col = 0, start = 0; col < 5; col++, start += len) {
+            ctx.font = fontSize + "px sans-serif";
+            ctx.fillStyle = "#000";
             var str = hash.substr(start, len);
             var x = rightSide + (cellWidth * col) + (spacing * col);
-            var result = drawProcess(ctx[a], str, weight, x, lineHeight * 5, cellWidth, lineHeight);
-            bonusSpinResult[a][col] = Math.floor(result);
-            if (bonusSpinResult[a][col] > weight[10][0]) {
-                respin = true;
-            }
-            drawWrapText(ctx[a], "Reel_" + (col + 1) + "=" + bonusSpinResult[a][col], x, x + cellWidth, lineHeight * 19, "center");
             var img = new Image();
-            $(img).data("ctx", ctx[a]);
+            $(img).data("ctx", ctx);
             $(img).data("x", x);
+            $(img).data("y", lineHeight * 4);
             $(img).data("cellWidth", cellWidth);
             img.onload = function() {
-                $(this).data("ctx").drawImage(this, $(this).data("x") + ($(this).data("cellWidth") - this.width) / 2, lineHeight * 20);
+                $(this).data("ctx").drawImage(this, $(this).data("x") + ($(this).data("cellWidth") - this.width) / 2, $(this).data("y"));
             };
-            for (var c = 0; c < weight.length; c++) {
-                if (bonusSpinResult[a][col] <= weight[c][0]) {
-                    bonusSpinImage[a][col] = weight[c][1];
-                    img.src = weight[c][1];
-                    break;
+            img.src = bonusSpinImage[col];
+            drawWrapText(ctx, str, x, x + cellWidth, lineHeight * 12, "center");
+            if (bonusSpinResult[col] > weight[10][0]) {
+                drawWrapText(ctx, "Respin", x, x + cellWidth, lineHeight * 9.5, "center");
+                drawWrapText(ctx, "↓", x, x + cellWidth, lineHeight * 10.5, "center");
+                var respinResult = drawProcess(ctx, str, weight, x, lineHeight * 11, cellWidth, lineHeight);
+                bonusSpinResult[col] = Math.floor(respinResult);
+                if (bonusSpinResult[col] > weight[10][0]) {
+                    respin = true;
                 }
-            }
-            /*ctx[a].strokeStyle = "#cccccc";
-            ctx[a].lineCap = 'round';
-            ctx[a].lineWidth = 1;
-            ctx[a].beginPath();
-            x = rightSide + (cellWidth * col) + (spacing * col);
-            ctx[a].moveTo(x, 0);
-            ctx[a].lineTo(x, canvasHeight);
-            if (col > 0) {
-                x = rightSide + (cellWidth * col) + (spacing * (col - 1));
-                ctx[a].moveTo(x, 0);
-                ctx[a].lineTo(x, canvasHeight);
-            }
-            ctx[a].stroke();*/
-        }
-        while (respin) {
-            respin = false;
-            canvasWidth = 900;
-            canvasHeight = 750;
-            ctx[a] = createCanvas($("div#bonus div.placeholder"), canvasWidth, canvasHeight, "#f8f8f8", true);
-            ctx[a].font = fontSize + "px sans-serif";
-            ctx[a].fillStyle = "#000";
-            var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
-            drawWrapText(ctx[a], "Respin", 10, canvasWidth, lineHeight * 1);
-            drawWrapText(ctx[a], "Round = " + (round++), 10, canvasWidth, lineHeight * 2);
-            drawWrapText(ctx[a], "Hash = " + hash, 10, canvasWidth, lineHeight * 3);
-            ctx[a].font = descriptionFontSize + "px sans-serif";
-            ctx[a].fillStyle = "#999";
-            drawWrapText(ctx[a], "Sha256(Server_Seed:Client_Seed:Nonce:Round)", 65, canvasWidth, lineHeight * 3.7);
-            drawWrapText(ctx[a], "Split the hash every 8 characters and take the first five string", 0, rightSide, lineHeight * 12);
-            drawWrapText(ctx[a], "Split each string every 2 characters", 0, rightSide, lineHeight * 14);
-            drawWrapText(ctx[a], "Convert hexadecimal to decimal", 0, rightSide, lineHeight * 16);
-            drawWrapText(ctx[a], "Calculate separately and add up", 0, rightSide, lineHeight * 17.5);
-            drawWrapText(ctx[a], "Multiply the total by the weight", 0, rightSide, lineHeight * 22.5);
-            for (var col = 0, start = 0; col < 5; col++, start += len) {
-                ctx[a].font = fontSize + "px sans-serif";
-                ctx[a].fillStyle = "#000";
-                var str = hash.substr(start, len);
-                var x = rightSide + (cellWidth * col) + (spacing * col);
-                var img = new Image();
-                $(img).data("ctx", ctx[a]);
-                $(img).data("x", x);
-                $(img).data("y", lineHeight * 4);
-                $(img).data("cellWidth", cellWidth);
-                img.onload = function() {
+                drawWrapText(ctx, "Reel_" + (col + 1) + "=" + bonusSpinResult[col], x, x + cellWidth, lineHeight * 25, "center");
+                var img1 = new Image();
+                $(img1).data("ctx", ctx);
+                $(img1).data("x", x);
+                $(img1).data("y", lineHeight * 26);
+                $(img1).data("cellWidth", cellWidth);
+
+                img1.onload = function() {
                     $(this).data("ctx").drawImage(this, $(this).data("x") + ($(this).data("cellWidth") - this.width) / 2, $(this).data("y"));
                 };
-                img.src = bonusSpinImage[a][col];
-                drawWrapText(ctx[a], str, x, x + cellWidth, lineHeight * 12, "center");
-                if (bonusSpinResult[a][col] > weight[10][0]) {
-                    drawWrapText(ctx[a], "Respin", x, x + cellWidth, lineHeight * 9.5, "center");
-                    drawWrapText(ctx[a], "↓", x, x + cellWidth, lineHeight * 10.5, "center");
-                    var respinResult = drawProcess(ctx[a], str, weight, x, lineHeight * 11, cellWidth, lineHeight);
-                    bonusSpinResult[a][col] = Math.floor(respinResult);
-                    if (bonusSpinResult[a][col] > weight[10][0]) {
-                        respin = true;
-                    }
-                    drawWrapText(ctx[a], bonusSpinResult[a][col].toString(), x, x + cellWidth, lineHeight * 25, "center");
-                    var img1 = new Image();
-                    $(img1).data("ctx", ctx[a]);
-                    $(img1).data("x", x);
-                    $(img1).data("y", lineHeight * 26);
-                    $(img1).data("cellWidth", cellWidth);
-
-                    img1.onload = function() {
-                        $(this).data("ctx").drawImage(this, $(this).data("x") + ($(this).data("cellWidth") - this.width) / 2, $(this).data("y"));
-                    };
-                    for (var c = 0; c < weight.length; c++) {
-                        if (bonusSpinResult[a][col] <= weight[c][0]) {
-                            bonusSpinImage[a][col] = weight[c][1];
-                            img1.src = weight[c][1];
-                            break;
-                        }
+                for (var c = 0; c < weight.length; c++) {
+                    if (bonusSpinResult[col] <= weight[c][0]) {
+                        bonusSpinImage[col] = weight[c][1];
+                        img1.src = weight[c][1];
+                        break;
                     }
                 }
             }
         }
     }
-    var input = document.createElement('input');
-    $(input).attr("type", "button");
-    $(input).attr("value", "Show/Hide weight Table");
-    $(input).css("display", "block");
-    $(input).click(function() { $("div#bonus div.placeholder").children().eq($("div#bonus div.placeholder").children().length - 1).toggle("fast") });
-    $("div#bonus div.placeholder").append(input);
+    insertShowMoreButton("div#bonus div.placeholder");
 
     canvasWidth = 900;
     canvasHeight = 900;
@@ -658,12 +651,7 @@ function bonusRespin(bonus) {
                     var img2 = new Image();
                     var symbol = weight[b - 1];
                     var selected = false;
-                    for (var c = 0; c < bonusSpinResult.length; c++) {
-                        selected = bonusSpinResult[c][a] <= weight[b - 1][0] && bonusSpinResult[c][a] >= (b - 2 >= 0 ? weight[b - 2][0] : 0);
-                        if (selected) {
-                            break;
-                        }
-                    }
+                    selected = bonusSpinResult[a] <= weight[b - 1][0] && bonusSpinResult[a] >= (b - 2 >= 0 ? weight[b - 2][0] : 0);
                     $(img2).data("left", rightSide + (cellWidth * a) + (spacing * (a)));
                     $(img2).data("width", cellWidth);
                     $(img2).data("top", lineHeight2 * (b));
@@ -710,6 +698,15 @@ function bonusRespin(bonus) {
         }
         ctx2.stroke();*/
     }
+}
+
+function insertShowMoreButton(parent) {
+    var input = document.createElement('input');
+    $(input).attr("type", "button");
+    $(input).attr("value", "Show/Hide weight Table");
+    $(input).addClass("button");
+    $(input).click(function() { $(parent).children().eq($(parent).children().length - 1).toggle("fast") });
+    $(parent).append(input);
 }
 
 function drawProcess(ctx, str, weight, x, y, cellWidth, lineHeight) {

@@ -382,7 +382,7 @@ function luckySpin() {
     if (!swordFound) {
         $("div#lucky #msg").show("fast");
         $("div#lucky #content").hide();
-        bonusRespin(0);
+        bonusRespin(false);
         return;
     }
     $("div#lucky div.placeholder").empty();
@@ -462,15 +462,14 @@ function luckySpin() {
             drawWrapText(ctx, "You get " + prize + "x payout", 270, canvasWidth, lineHeight * 13.5, "center");
         } else {
             drawWrapText(ctx, "You get bonus respin and then " + prize + "x payout", 270, canvasWidth, lineHeight * 13.5, "center");
+            bonusRespin(true);
         }
-        bonusRespin(prize);
-        console.log(type);
     }
     img.src = "images/luckySpin.png";
 }
 
 function bonusRespin(bonus) {
-    if (!bonus || bonus < 1) {
+    if (!bonus) {
         $("div#bonus #msg").show("fast");
         $("div#bonus #content").hide();
         return;

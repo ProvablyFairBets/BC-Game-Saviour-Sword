@@ -55,7 +55,7 @@ function basicSpin() {
     var clientSeed = $("input#clientSeed").val();
     var nonce = $("input#nonce").val();
     var round = $("div#basic input#round").val();
-    var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
+    var hash = encrypt(serverSeed, clientSeed, nonce, round);
     $("div#basic input#hash").val(hash);
 
     var canvasWidth = 900;
@@ -224,7 +224,7 @@ function catRespin() {
     var clientSeed = $("input#clientSeed").val();
     var nonce = $("input#nonce").val();
     var round = $("div#cat input#round").val();
-    var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
+    var hash = encrypt(serverSeed, clientSeed, nonce, round);
     $("div#cat input#hash").val(hash);
     var cellWidth = 150;
     var rightSide = 120;
@@ -403,7 +403,7 @@ function luckySpin() {
     var clientSeed = $("input#clientSeed").val();
     var nonce = $("input#nonce").val();
     var round = $("div#lucky input#round").val();
-    var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
+    var hash = encrypt(serverSeed, clientSeed, nonce, round);
     $("div#lucky input#hash").val(hash);
 
     var canvasWidth = 900;
@@ -506,7 +506,7 @@ function bonusRespin(bonus) {
     var rightSide = 120;
     var bonusSpinResult = new Array();
     var bonusSpinImage = new Array();
-    var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
+    var hash = encrypt(serverSeed, clientSeed, nonce, round);
     var ctx = createCanvas($("div#bonus div.placeholder"), canvasWidth, canvasHeight, "#f8f8f8", true);
     ctx.font = fontSize + "px sans-serif";
     ctx.fillStyle = "#000";
@@ -515,7 +515,7 @@ function bonusRespin(bonus) {
     drawWrapText(ctx, "Hash = " + hash, 10, canvasWidth, lineHeight * 3);
     ctx.font = descriptionFontSize + "px sans-serif";
     ctx.fillStyle = "#999";
-    drawWrapText(ctx, "Sha256(Server_Seed:Client_Seed:Nonce:Round)", 65, canvasWidth, lineHeight * 3.7);
+    drawWrapText(ctx, "HMAC_Sha256 ( Client_Seed : Nonce : Round , Server_Seed )", 65, canvasWidth, lineHeight * 3.7);
     drawWrapText(ctx, "Split the hash every 8 characters and take the first five string", 0, rightSide, lineHeight * 6);
     drawWrapText(ctx, "Split each string every 2 characters", 0, rightSide, lineHeight * 8);
     drawWrapText(ctx, "Convert hexadecimal to decimal", 0, rightSide, lineHeight * 10);
@@ -570,13 +570,13 @@ function bonusRespin(bonus) {
         ctx = createCanvas($("div#bonus div.placeholder"), canvasWidth, canvasHeight, "#f8f8f8", true);
         ctx.font = fontSize + "px sans-serif";
         ctx.fillStyle = "#000";
-        var hash = sha256(serverSeed + ":" + clientSeed + ":" + nonce + ":" + round);
+        var hash = encrypt(serverSeed, clientSeed, nonce, round);
         drawWrapText(ctx, "Respin when the spade symbol, heart symbol, club symbol and square symbol appear in the reels", 10, canvasWidth, lineHeight * 1);
         drawWrapText(ctx, "Round = " + (round++), 10, canvasWidth, lineHeight * 2);
         drawWrapText(ctx, "Hash = " + hash, 10, canvasWidth, lineHeight * 3);
         ctx.font = descriptionFontSize + "px sans-serif";
         ctx.fillStyle = "#999";
-        drawWrapText(ctx, "Sha256(Server_Seed:Client_Seed:Nonce:Round)", 65, canvasWidth, lineHeight * 3.7);
+        drawWrapText(ctx, "HMAC_Sha256 ( Client_Seed : Nonce : Round , Server_Seed )", 65, canvasWidth, lineHeight * 3.7);
         drawWrapText(ctx, "Split the hash every 8 characters and take the first five string", 0, rightSide, lineHeight * 12);
         drawWrapText(ctx, "Split each string every 2 characters", 0, rightSide, lineHeight * 14);
         drawWrapText(ctx, "Convert hexadecimal to decimal", 0, rightSide, lineHeight * 16);
@@ -797,4 +797,8 @@ function createCanvas(parent, width, height, color, visiable) {
     ctx.translate(0.5, 0.5);
     $(parent).append(canvas);
     return ctx;
+}
+
+function encrypt(serverSeed, clientSeed, nonce, round){
+	return CryptoJS.HmacSHA256(clientSeed+":"+nonce+":"+round, serverSeed).toString();
 }

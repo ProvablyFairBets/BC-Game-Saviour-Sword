@@ -6,8 +6,7 @@
     <meta http-equiv="Content-Script-Type" content="text/javascript">
     <meta http-equiv="Content-Style-Type" content="text/css">
     <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="js/sha256.min.js"></script>
-    <script type="text/javascript" src="js/sha512.min.js"></script>
+    <script type="text/javascript" src="js/crypto-js.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <link rel="stylesheet" type="text/css" href="css/normalize.min.css" />
     <style>
@@ -81,7 +80,7 @@
             <input id="round" class="short" type="text" value="0" disabled="disabled" />
         </div>
         <div>
-            <span class="description">Sha256(Server_Seed:Client_Seed:Nonce:Round)</span>
+            <span class="description">HMAC_Sha256 ( Client_Seed : Nonce : Round , Server_Seed )</span>
             <span class="label">Hash</span>
             <input id="hash" class="long" type="text" disabled="disabled" />
         </div>
@@ -98,7 +97,7 @@
                 <input id="round" class="short" type="text" value="1" disabled="disabled" />
             </div>
             <div>
-                <span class="description">Sha256(Server_Seed:Client_Seed:Nonce:Round)</span>
+                <span class="description">HMAC_Sha256 ( Client_Seed : Nonce : Round , Server_Seed )</span>
                 <span class="label">Hash</span>
                 <input id="hash" class="long" type="text" disabled="disabled" />
             </div>
@@ -116,7 +115,7 @@
                 <input id="round" class="short" type="text" value="2" disabled="disabled" />
             </div>
             <div>
-                <span class="description">Sha256(Server_Seed:Client_Seed:Nonce:Round)</span>
+                <span class="description">HMAC_Sha256 ( Client_Seed : Nonce : Round , Server_Seed )</span>
                 <span class="label">Hash</span>
                 <input id="hash" class="long" type="text" disabled="disabled" />
             </div>
